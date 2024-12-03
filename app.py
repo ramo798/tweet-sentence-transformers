@@ -95,6 +95,33 @@ if page == "ツイート検索":
             st.markdown(f"**投稿日:** {row['created_at']}")
             st.markdown(f"**ジャンル:** {row['genre']}")
             st.markdown(f"**内容:** {row['full_text']}")
+
+            # ボタンを追加
+            if st.button(f"これに似たツイートを検索 (ID: {row['id']})"):
+                # スタブとして似たツイートを検索する処理
+                st.write(f"検索中: {row['id']} に似たツイートを探しています...")
+
+                similar_tweets = []
+                search_res = collection.query(
+                    query_embeddings=[row['emb']], n_results=10,)
+
+                for ids, metadata in zip(search_res['ids'][0], search_res['metadatas'][0]):
+
+                    similar_tweets.append({
+                        "id": ids,
+                        "full_text": metadata['full_text'],
+                        "created_at": metadata['created_at'],
+                        "genre": metadata['genre'],
+                        "emb": ""
+                    })
+
+                similar_tweets = pd.DataFrame(similar_tweets)
+                st.subheader("これに似たツイート候補")
+                for _, similar_row in similar_tweets.iterrows():
+                    st.markdown(
+                        f"- **ツイートID:** [{similar_row['id']}](https://twitter.com/urakutenism/status/{similar_row['id']})")
+                    st.markdown(f"  **内容:** {similar_row['full_text']}")
+                    st.markdown(f"  **ジャンル:** {similar_row['genre']}")
             st.markdown("---")
 
 # ジャンル集計ページ
